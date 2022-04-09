@@ -1,0 +1,64 @@
+version: "3.7"
+
+services:
+  mongo-service:
+    image: mongo
+    container_name: mongo-service
+    mem_limit: 150m
+    restart: unless-stopped
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_USER}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD}
+      - MONGO_INITDB_DATABASE=${MONGO_DATABASE}
+    volumes:
+      - ${MONGO_VOLUME}:/data/db
+    ports:
+      - ${MONGO_PORT}:27017
+    networks:
+      - database-network
+
+  redis-service:
+    image: redis
+    container_name: redis-service
+    mem_limit: 10m
+    restart: unless-stopped
+    command: redis-server --save 20 1 --loglevel warning --requirepass ${REDIS_PASSWORD}
+    volumes:
+      - ${REDIS_VOLUME}:/data
+    ports:
+      - ${REDIS_PORT}:6379
+    networks:
+      - database-network
+
+  mariadb-service:
+    image: mariadb
+    container_name: mariadb-service
+    mem_limit: 150m
+    restart: unless-stopped
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MARIADB_PASSWORD}
+    volumes:
+      - ${MARIADB_VOLUME}:/var/lib/mysql
+    ports:
+      - ${MARIADB_PORT}:3306
+    networks:
+      - database-network
+
+  postgres-service:
+    image: postgres
+    container_name: postgres-service
+    mem_limit: 100m
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DATABASE}
+    volumes:
+      - ${POSTGRES_VOLUME}:/var/lib/postgresql/data
+    ports:
+      - ${POSTGRES_PORT}:5432
+    networks:
+      - database-network
+
+networks:
+  database-network:
